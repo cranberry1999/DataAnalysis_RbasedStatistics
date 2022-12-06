@@ -1,0 +1,84 @@
+---
+title: "HW8_201821479_황혜린"
+author: "201821479_황혜린"
+date: "2019년 5월 30일"
+output:
+  html_document: default
+  word_document: default
+---
+
+#과제 #8 회귀분석
+
+***    
+•종속변수   
+  
+ 국가별 2015, 2016, 2017년 평균 GDP 성장률   
+
+•독립변수   
+
+ -소속대륙(더미변수 활용; 분산분석 데이터 활용)   
+
+ -국가별 문화적 차원 점수(Hofstede 모델 참조)   
+
+  --초기 모델의 4개 차원만 활용   
+
+  (결정계수 개선을 위해 본인만의 변수 추가 가능)  
+  
+***    
+  
+```
+연구가설
+* 대륙의 문화적차원점수(독립변수)는 국가별 평균 GDP성장률(종속변수)에 영향을 미칠 것이다.    
+* 소속대륙은 국가별 평균 GDP성장률에 영향을 미칠 것이다. 
+```
+
+***   
+
+##About data   
+```{r}
+setwd("C:/Users/hyere/Desktop/Data_R")
+gdp_growth <- read.csv("gdp_continent.csv", header = T)
+
+dplyr::glimpse(gdp_growth)
+```
+
+사용할 변수들 |설명
+----|----
+Value|국가별 평균 GDP성장률  (종속변수)
+Continent|소속 대륙  (독립변수1)
+Hofstede_mean|Hofstede 4-dimension model 의 4개변수 값들의 평균  (독립변수2)   
+
+
+***
+
+
+```{r}
+library(sjPlot,dplyr)
+
+regression <- lm(Value ~ as.factor(Continent)+Hofstede_mean, data = gdp_growth)
+
+summary(regression)
+
+
+```
+
+##분석결과     
+#### Asia, Europe대륙과 Hofstede_mean은 유의도가 0.05보다 높게 나타났다. 따라서 영가설을 채택한다.   
+#### America대륙은 유의도가 0.05보다 낮은 0.0428을 가진다. 따라서 이 변수는 종속변수에 대해 통계적으로 유의한 영향력을 가지고있다.   
+#### F값이 10.43 , 유의도는 1.144e-07 로 나타났다.   
+####   + F값에 따른 유의도가 0.05보다 낮은 수준이므로 회귀모형은 의미가 있다는 연구가설을 채택한다. 
+#### R^2^값은 0.1777로 종속변수의 분산 중에서 독립변수에 의해 설명되는 분산은 17.77%
+
+***  
+
+
+## sjPlot패키지를 이용한 다중회귀분석 결과표 작성 
+```{r}
+attach(gdp_growth)
+gdp_growth$Continent_f <- factor(gdp_growth$Continent)
+regression_f <- lm(Value ~ Continent_f+Hofstede_mean, data = gdp_growth)
+detach(gdp_growth)
+
+tab_model(regression_f, show.se = T, show.ci = F, show.stat = T,  dv.labels = "Value: Average GDP growth by Country") #한글을 인식하지 못하여서 제목을 영어로 작성하였습니다
+
+```

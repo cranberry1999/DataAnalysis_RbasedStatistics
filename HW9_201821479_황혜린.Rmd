@@ -1,0 +1,102 @@
+---
+title: "Untitled"
+author: "201821479_황혜린"
+date: "2019년 6월 9일"
+output: html_document
+---
+
+#과제 #9 로지스틱 회귀분석
+
+***   
+주어진 데이터 및 데이터 설명을 활용하여,
+
+1) 로지스틱 회귀분석을 진행하고, 의미를 해석해 보세요.
+
+2) ROC 커브를 그리고, 의미를 해석해 보세요.
+
+(종속변수는 맨 마지막 default payment입니다)
+
+***    
+variable              |  information                                                                                                                                     
+----|-------------------------------------------------------------------                                                                                                    
+ID|ID of each client
+LIMIT_BAL|Amount of given credit in NT dollars
+EDUCATION|1=graduate school, 2=university, 3=high school, 4=others, 5=unknown, 6=unknown
+MARRIAGE|1=married, 2=single, 3=others
+PAY_|Repayment status (-2=소비없음, -1=pay duly, 1=payment delay for one month, 2=payment delay for two months, ... 8=payment delay for eight months, 9=payment delay for nine months and above)
+BILL_AMT|Amount of bill
+PAY_AMT|Amount of previous payment
+default.payment.next.month|Default payment (1=yes, 0=no)
+
+***   
+  
+><어떤 변수가 default payment와 연관이 있을까>    
+
+```   
+종속변수 : defalt.payment.next.month
+독립변수 : 그 외 변수들  (음수값을 여러개 가지는 변수는 제외 : BILL_AMT)
+```   
+
+## 로지스틱 회귀분석 
+
+```{R}
+#데이터 불러오기 
+setwd("C:/Users/hyere/Desktop/Data_R")
+getwd()
+credit <- read.csv("UCI_Credit_Card.csv", header = T)
+
+#glm함수의 인자값들은 0이상의 정수이어야 하므로 변환해준다
+credit[,7:12] <- credit[,7:12] + 2
+#종속변수 명목척도로 변환 
+credit$default.payment.next.month <- as.factor(credit$default.payment.next.month)
+
+
+#로지스틱 회귀분석
+##continuous variables
+logist_1 <- glm(default.payment.next.month ~ ID+LIMIT_BAL+SEX+EDUCATION+MARRIAGE+AGE+PAY_0+PAY_2+PAY_3+PAY_4+PAY_5+PAY_6+PAY_AMT1+PAY_AMT2+PAY_AMT3+PAY_AMT4+PAY_AMT5+PAY_AMT6, data = credit, family = binomial)
+
+summary(logist_1)
+coef(logist_1)
+exp(coef(logist_1))
+
+#명목척도인 독립변수를 더미변수로 코딩한 것 
+##nominal variables
+logist_2 <- glm(default.payment.next.month ~ ID+LIMIT_BAL+as.factor(SEX)+as.factor(EDUCATION)+as.factor(MARRIAGE)+AGE+as.factor(PAY_0)+as.factor(PAY_2)+as.factor(PAY_3)+as.factor(PAY_4)+as.factor(PAY_5)+as.factor(PAY_6)+PAY_AMT1+PAY_AMT2+PAY_AMT3+PAY_AMT4+PAY_AMT5+PAY_AMT6, data = credit, family = binomial)
+summary(logist_2)
+coef(logist_2)
+exp(coef(logist_2))
+
+#모형 비교 
+anova(logist_1, logist_2, test="LRT")
+
+```
+
+
+###분석결과
+
+<#continuous variables>          
+대부분의 변수들이 유의한 영향력을 가진다          
+LIMIT_BAL,SEX,EDUCATION,MARRIAGE,AGE,PAY_0,PAY_2,PAY_3,PAY_AMT1, PAY_AMT2,PAY_AMT3,PAY_AMT4,PAY_AMT5,PAY_AMT6인 변수들이 유의한 영향력을 가진다.        
+
+
+<#nominal variables>          
+명목적인 척도를 가지는 독립변수들이 각각의 척도에 대해 얼마나 다른 영향력을 가지는지 알아보았다.            
+LIMIT_BAL, SEX, MARRIAGE, AGE, (PAY_0)1,2~7, (PAY_2)6, (PAY_3)4~5, (PAY_5)4, (PAY_6)2,5 , PAY_AMT1, PAY_AMT2 변수들이 유의한 영향력을 가진다.        
+
+* 모델 비교결과 큰 차이는 없지만, 여러개의 명목척도를 가지는 독립변수를 자세히 분석해보면 높은 유의도를 가지는 변수가 존재하므로
+(ex.(PAY_5)4, (PAY_6)2,5) nominal variable로 간주하여 분석하는 것이 좋겠다.        
+
+
+##ROC커브 
+
+```{r}
+#install.packages("Epi")
+#install.packages("cmprsk")
+library(Epi)
+
+graph_1 <- ROC(form = default.payment.next.month ~ ID+LIMIT_BAL+SEX+EDUCATION+MARRIAGE+AGE+PAY_0+PAY_2+PAY_3+PAY_4+PAY_5+PAY_6+PAY_AMT1+PAY_AMT2+PAY_AMT3+PAY_AMT4+PAY_AMT5+PAY_AMT6, data = credit, plot = "ROC")
+#graph_1$res
+#res코드가 너무 길게 나와서 주석처리하였습니다
+graph_1$AUC
+graph_1$lr
+```

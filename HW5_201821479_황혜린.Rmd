@@ -1,0 +1,79 @@
+---
+title: "HW5_201821479_황혜린"
+author: "201821479_황혜린"
+date: "2019년 4월 8일"
+output: html_document
+---
+
+#Weekly assignment5 
+
+>"Game" category와 "Family" category의 앱들 간에 rating 값의 차이가 있는지 t-test로 검증하세요.
+    
+    
+## 데이터 전처리 
+```{r}
+#데이터 불러오기 
+setwd("C:/Users/hyere/Desktop/Data_R")
+appdata <- read.csv("googleplaystore.csv", header = T)
+
+#데이터 전처리 
+library(dplyr)
+appdata <- appdata %>% filter(Category %in% c("GAME","FAMILY")) %>% select(Category, Rating)
+
+appdata$Rating <- as.character(appdata$Rating)
+appdata$Rating <- as.numeric(appdata$Rating)
+appdata$Category <- as.character(appdata$Category)
+appdata$Category <- as.factor(appdata$Category)
+
+#변수의 성질이 제대로 변환되었는가 확인 
+str(appdata)
+
+summary(appdata) #Rating컬럼에 NA 269개 
+
+#결측치 처리 
+appdata <- appdata %>% filter(!is.na(Rating))
+
+sum(is.na(appdata)) #na 0개 
+```
+
+##분산동질성 검증  
+등분산 검증의 영가설은 '두 집단의 분산은 같다'이고, 연구가설은 '두 집단의 분산은 같지않다'이다. 
+```{r}
+var.test(Rating ~ Category, data=appdata)
+
+```
+```   
+유의도는 영가설을 기각할 수 있는 기준인 0.05보다 작기때문에 영가설을 기각한다.
+따라서 두 집단의 분산이 다르다는 가정으로 t검증을 수행한다.
+ 
+```    
+
+## T검증-연구가설 검증 
+```{r}
+t.test(Rating ~ Category, var.equal=FALSE, data = appdata)
+# var.equal인자에는 앞서 등분산 검증결과에서 두 집단의 분산이 다르다고 가정할 수 있으므로 FALSE를 입력한다. 
+```
+```   
+t = -5.6832, df(자유도) = 2767.9, p-value(유의도) = 1.46e-08
+
+독립변수인 성별 집단의 평균은 각각 4.192201과 4.286029으로 집단 간 평균은 0.093828 차이가 있다. 
+
+이들 집단 간 차이의 유의도는 0.05보다 작기때문에 Category에 따라 Rating에 대한 차이가 없다는 영가설이 기각되어 집단 간의 평균 차이가 통계적으로 유의한 차이라 볼 수 있다. 
+```   
+
+
+
+## 집단에 따른 기술통계량   
+```{r}
+library(psych)
+describeBy(appdata$Rating, appdata$Category)
+```
+
+## 집단에 따른 평균 비교 도표 
+```{r}
+#install.packages( "gplots")
+
+library(gplots)
+plotmeans(Rating ~ Category, data = appdata, xlab = "Rating", ylab = "Category", ci.label = T, mean.labels = T, ylim=c(4.1,4.4), main=" “Game” Category와 “Family” category의 앱들 간에 Rating 값의 차이 ")
+```
+

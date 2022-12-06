@@ -1,0 +1,394 @@
+---
+title: "HW6_201821479_황혜린"
+author: "201821479_황혜린"
+date: "2019년 4월 15일"
+output: word_document
+---
+
+# Weekly Assignment 6
+
+>• Data: GDP and GDP Per Capita.csv   
+• America, Africa, Europe, Asia에 속한 국가들 간에 GDP, 인당 GDP에 차이가 있는지?   
+•(국가-지역 매핑 작업 필요)
+
+```
+<연구가설>
+* 대륙들 간의 총 GDP에는 차이가 있을 것이다  
+
+* 대륙들 간의 인당 GDP간에는 차이가 있을 것이다  
+```
+
+<분석 순서>   
+1. 독립변수 만들기   
+2. 종속변수 만들기   
+3. 연구가설 검증    
+4. 집단에 따른 기술통계량 출력   
+5. 집단에 따른 평균 비교를 위한 도표 출력    
+6. 사후검증  
+
+***
+
+## 1. 독립변수 만들기
+```{r}
+#install.packages("haven") "haven" 패키지를 설치하라는 오류가 떠서설치하였습니다.
+library(haven)
+
+setwd("C:/Users/hyere/Desktop/Data_R")
+Gdpdata <- read.csv("GDP and GDP Per Capita.csv", sep = ",", skip = 1)
+Gdpdata <- Gdpdata[,-6]
+Gdpdata$Continent <- "0"
+colnames(Gdpdata) <- c("Region", "Country/Area", "Year", "Series", "Value", "Source", "Continent" )
+
+```
+
+
+흩어져있는 국가를 매핑
+```{r}
+Gdpdata[Gdpdata$Region == "840", 7] <- "America"
+Gdpdata[Gdpdata$Region == "76", 7] <- "America"
+Gdpdata[Gdpdata$Region == "484", 7] <- "America"
+Gdpdata[Gdpdata$Region == "170", 7] <- "America"
+Gdpdata[Gdpdata$Region == "32", 7] <- "America"
+Gdpdata[Gdpdata$Region == "124", 7] <- "America"
+Gdpdata[Gdpdata$Region == "604", 7] <- "America"
+Gdpdata[Gdpdata$Region == "862", 7] <- "America"
+Gdpdata[Gdpdata$Region == "152", 7] <- "America"
+Gdpdata[Gdpdata$Region == "218", 7] <- "America"
+Gdpdata[Gdpdata$Region == "320", 7] <- "America"
+Gdpdata[Gdpdata$Region == "192", 7] <- "America"
+Gdpdata[Gdpdata$Region == "68", 7] <- "America"
+Gdpdata[Gdpdata$Region == "332", 7] <- "America"
+Gdpdata[Gdpdata$Region == "214",7] <- "America"
+Gdpdata[Gdpdata$Region == "340",7] <- "America"
+Gdpdata[Gdpdata$Region == "600",7] <- "America"
+Gdpdata[Gdpdata$Region == "558",7] <- "America"
+Gdpdata[Gdpdata$Region == "222",7] <- "America"
+Gdpdata[Gdpdata$Region == "188",7] <- "America"
+Gdpdata[Gdpdata$Region == "591",7] <- "America"
+Gdpdata[Gdpdata$Region == "630",7] <- "America"
+Gdpdata[Gdpdata$Region == "858",7] <- "America"
+Gdpdata[Gdpdata$Region == "388",7] <- "America"
+Gdpdata[Gdpdata$Region == "780",7] <- "America"
+Gdpdata[Gdpdata$Region == "328",7] <- "America"
+Gdpdata[Gdpdata$Region == "740",7] <- "America"
+Gdpdata[Gdpdata$Region == "28",7] <- "America"
+Gdpdata[Gdpdata$Region == "44",7] <- "America"
+Gdpdata[Gdpdata$Region == "52",7] <- "America"
+Gdpdata[Gdpdata$Region == "84",7] <- "America"
+Gdpdata[Gdpdata$Region == "212",7] <- "America"
+Gdpdata[Gdpdata$Region == "308",7] <- "America"
+Gdpdata[Gdpdata$Region == "659",7] <- "America"
+Gdpdata[Gdpdata$Region == "662",7] <- "America"
+Gdpdata[Gdpdata$Region == "670",7] <- "America"
+Gdpdata[Gdpdata$Region == "29",7] <- "America"
+
+Gdpdata[Gdpdata$Region == "12", 7] <- "Africa"
+Gdpdata[Gdpdata$Region == "24",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "204",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "72",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "854",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "108",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "132",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "120",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "140",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "148",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "174",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "178",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "180",7] <- "Africa"
+
+Gdpdata[Gdpdata$Region == "262",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "818",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "226",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "232",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "748",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "231",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "266",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "270",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "288",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "324",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "624",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "404",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "426",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "430",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "434",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "450",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "454",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "466",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "478",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "480",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "504",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "508",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "516",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "562",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "566",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "646",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "678",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "686",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "690",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "694",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "706",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "710",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "728",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "729",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "736",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "834",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "768",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "788",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "800",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "894",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "716",7] <- "Africa"
+Gdpdata[Gdpdata$Region == "836",7] <- "Africa"
+
+Gdpdata[Gdpdata$Region == "8",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "20",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "51",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "40",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "31",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "112",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "56",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "70",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "100",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "191",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "196",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "203",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "208",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "233",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "246",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "250",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "268",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "276",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "300",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "348",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "352",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "372",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "380",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "412",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "428",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "438",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "440",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "442",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "470",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "498",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "492",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "499",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "528",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "807",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "578",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "616",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "620",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "642",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "643",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "674",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "688",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "703",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "705",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "724",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "752",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "756",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "792",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "804",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "826",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "660",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "533",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "92",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "136",7] <- "Europe"
+
+Gdpdata[Gdpdata$Region == "258",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "304",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "500",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "530",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "540",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "534",7] <- "Europe"
+Gdpdata[Gdpdata$Region == "796",7] <- "Europe"
+
+Gdpdata[Gdpdata$Region == "4",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "51",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "31",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "48",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "60",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "64",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "96",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "116",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "156",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "196",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "268",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "356",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "360",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "364",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "368",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "376",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "392",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "400",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "398",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "414",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "417",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "418",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "422",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "458",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "462",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "496",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "104",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "524",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "512",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "586",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "608",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "634",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "682",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "702",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "410",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "144",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "760",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "762",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "626",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "792",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "795",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "784",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "860",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "704",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "887",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "50",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "344",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "446",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "408",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "275",7] <- "Asia"
+Gdpdata[Gdpdata$Region == "764",7] <- "Asia"
+
+#write.csv(Gdpdata, file = "gdp_continent.csv") HW8회귀분석에 사용 
+```
+```{R}
+
+#변수 성격 변환 
+Gdpdata$Continent <- as.factor(Gdpdata$Continent)
+Gdpdata$Value <- as.numeric(gsub(",","",Gdpdata$Value))
+str(Gdpdata)
+```
+
+
+```{r}
+library(dplyr)
+Gdpdata_2 <- Gdpdata %>% filter(Year == 2017, Continent %in% c("America", "Asia", "Europe", "Africa"), Series %in% c("GDP per capita (US dollars)", "GDP in current prices (millions of US dollars)"))
+Gdpdata_2 <- Gdpdata_2[,-c(1,3,6)]
+Gdpdata_2 <- Gdpdata_2[,c(4,1,2,3)]
+
+#분석을 위해 형태변환 
+library(tidyr)
+Gdpdata_2 <- spread(Gdpdata_2, Series, Value)
+colnames(Gdpdata_2) <- c("Continent", "Country", "총GDP", "인당GDP")
+```
+
+***   
+   
+#연구가설:  대륙들 간의 총 GDP에는 차이가 있을 것이다.  
+
+## 연구가설 검증 
+```{r}
+ano1 <- aov(총GDP ~ Continent, data = Gdpdata_2)
+anova(ano1)
+```
+> F 값은 집단 간 평균 제곱합을 집단 내 평균 제곱합으로 나눈 1.4093가 되어, 집단 간 제곱합의 자유도와 집단 내 제곱합의 자유도를 감안한 유의확률이 영가설의 채택 혹은 기각을 판단할 수 있는 기준인 0.05보다 크게 나타나므로 대륙의 국가간 총GDP에 차이가 없다는 영가설을 채택한다.  
+
+>따라서 등분산성 절차를 밟지 않아야한다. 
+
+
+## 집단별 평균값 구하기 
+```{r}
+library(psych)
+describeBy(Gdpdata_2$총GDP, Gdpdata_2$Continent)
+```
+
+
+## sjplot 패키지를 이용한 분산분석 그래프 만들기 
+```{r}
+library(sjPlot)
+set_theme(axis.textsize=1.2, geom.label.size=4.5)
+sjp.aov1(Gdpdata_2$총GDP, Gdpdata_2$Continent,
+geom.size = 1.5, wrap.labels = 7,
+ meansums = T,
+show.summary = T, show.p = F,
+title = "대륙별 총GDP", axis.labels = c("Africa", "America", "Asia", "Europe"))
+
+```
+
+## gplots 패키지를 이용한 분산분석 그래프 만들기 
+```{r}
+library(gplots)
+plotmeans(총GDP ~ Continent, data=Gdpdata_2,
+xlab="Continent", ylab="총GDP", ci.label=T,
+mean.label=T, barwidth=5, digits=2,
+col="brown", pch=1, barcol="red",
+legends = c("Africa", "America", "Asia", "Europe"),
+main="대륙별 총GDP")
+```
+
+## 사후검증 
+```{r}
+#install.packages("agricolae")
+library(agricolae)
+scheffe.test(ano1, "Continent", alpha=0.05, console=TRUE)
+```
+>사후검증 결과, 집단은 나누어지지 않았다. 즉 집단의 평균이 유의한 차이가 있지 않다. 
+
+   
+   
+***   
+# 연구가설: 대륙들 간의 인당 GDP간에는 차이가 있을 것이다 
+
+## 연구가설 검증 
+```{r}
+ano2 <- aov(인당GDP ~ Continent, data = Gdpdata_2)
+anova(ano2)
+```
+>F 값은 집단 간 평균 제곱합을 집단 내 평균 제곱합으로 나눈 21.047가 되어, 집단 간 제곱합의 자유도와 집단 내 제곱합의 자유도를 감안한 유의확률이 영가설의 채택 혹은 기각을 판단할 수 있는 기준인 0.05보다 낮게 나타나므로 대륙의 국가간 인당GDP에 차이가 있다는 영가설은 기각하고, 연구가설을 채택한다.
+
+## 등분산성 
+```{r}
+library(car)
+leveneTest(인당GDP ~ Continent, data = Gdpdata_2)
+
+oneway.test(인당GDP ~ Continent, data = Gdpdata_2, var.equal=F)
+
+oneway.test(인당GDP ~ Continent, data = Gdpdata_2, var.equal=T)
+```
+
+***   
+## 집단별 평균값 구하기 
+### psych패키지를 이용한 집단별 평균값 구하기 
+```{r}
+library(psych)
+describeBy(Gdpdata_2$인당GDP, Gdpdata_2$Continent)
+```
+
+## sjplot 패키지를 이용한 분산분석 그래프 만들기 
+```{r}
+library(sjPlot)
+set_theme(axis.textsize=1.2, geom.label.size=4.5)
+sjp.aov1(Gdpdata_2$인당GDP, Gdpdata_2$Continent,
+geom.size = 1.5, wrap.labels = 7,
+ meansums = T,
+show.summary = T, show.p = F,
+title = "대륙별 인당GDP", axis.labels = c("Africa", "America", "Asia", "Europe"))
+
+```
+
+## gplots 패키지를 이용한 분산분석 그래프 만들기 
+```{r}
+library(gplots)
+plotmeans(인당GDP ~ Continent, data=Gdpdata_2,
+xlab="Continent", ylab="인당GDP", ci.label=T,
+mean.label=T, barwidth=5, digits=2,
+col="brown", pch=1, barcol="red",
+legends = c("Africa", "America", "Asia", "Europe"),
+main="대륙별 인당GDP")
+```
+
+## 사후검증 
+```{r}
+#install.packages("agricolae")
+library(agricolae)
+scheffe.test(ano2, "Continent", alpha=0.05, console=TRUE)
+```
+
+>사후검증 결과, 집단은 a, b, bc 그리고 c로 나누어졌다.
+즉, 독립변수들 간의 평균이 3집단으로 유의한 차이를 보이고 있음이 나타났다. America는 b와 c그룹사이에 애매하게 끼어서 차이가 없는 것으로 분석되었다. 
+
+

@@ -1,0 +1,138 @@
+---
+title: "HW4_201821479_황혜린"
+author: "201821479_황혜린"
+date: "2019년 4월 2일"
+output: html_document
+---
+
+# Weekly assignment 4
+
+>교차분석
+
+* (대립)가설: 국가고시 유형별로 남녀의 합격수가 다를것이다
+* 1) 필요한 데이터를 수집하여 교차분석을 통해 검증
+* 2) 교차분석 도표 작성(ggplot2와 비교)
+
+
+***
+
+
+##가지고 있는 데이터로 데이터프레임 만들기 
+```{r}
+rep.row<-function(x,n){ 
+m <- matrix(rep(x,each=n),nrow=n) 
+return(m)
+}
+
+df <-  data.frame(rbind(rep.row(c("여성", "행정"),157),
+                        rep.row(c("여성", "세무"),31),
+                        rep.row(c("여성", "관세"),11),
+                  rep.row(c("여성", "통계"), 4),
+                 rep.row(c("여성", "감사"), 4),
+                 rep.row(c("여성", "교정"), 10),
+                 rep.row(c("여성", "보호"), 2),
+                 rep.row(c("여성", "검찰"), 4),
+                 rep.row(c("여성", "출입국관리"), 11),
+                 rep.row(c("여성", "외무영사"), 31),
+                 rep.row(c("여성", "기술직"), 59),
+                 rep.row(c("여성", "공업"), 22),
+                 rep.row(c("여성", "농업"), 4),
+                 rep.row(c("여성", "임업"), 2),
+                 rep.row(c("여성", "시설"), 14),
+                 rep.row(c("여성", "방재안전"), 2),
+                 rep.row(c("여성", "전산"), 13),
+                 rep.row(c("여성", "방송통신"), 2),
+                 rep.row(c("남성", "행정"),209),
+                        rep.row(c("남성", "세무"),45),
+                        rep.row(c("남성", "관세"),8),
+                  rep.row(c("남성", "통계"), 4),
+                 rep.row(c("남성", "감사"), 10),
+                 rep.row(c("남성", "교정"), 22),
+                 rep.row(c("남성", "보호"), 3),
+                 rep.row(c("남성", "검찰"), 9),
+                 rep.row(c("남성", "출입국관리"), 10),
+                 rep.row(c("남성", "외무영사"), 12),
+                 rep.row(c("남성", "기술직"), 168),
+                 rep.row(c("남성", "공업"), 84),
+                 rep.row(c("남성", "농업"), 4),
+                 rep.row(c("남성", "임업"), 6),
+                 rep.row(c("남성", "시설"), 44),
+                 rep.row(c("남성", "방재안전"), 3),
+                 rep.row(c("남성", "전산"), 20),
+                 rep.row(c("남성", "방송통신"), 7)))
+
+names(df) <- c("sex", "depart")
+
+View(df)
+```
+
+
+## 교차분석 
+
+###table함수를 이용한 교차분석 
+```{r}
+# 부서별 성별 합격자수를 table로 표현 
+depart.sex.table <- table(df$depart, df$sex) ;depart.sex.table
+
+#두 변수의 값을 통해 주변 합계를 출력
+margin.table(depart.sex.table)
+margin.table(depart.sex.table, 1)
+margin.table(depart.sex.table, 2)
+
+#백분율  출력 
+round(prop.table(depart.sex.table)*100, 2)
+round(prop.table(depart.sex.table, 2)*100, 2)
+round(margin.table(prop.table(depart.sex.table),1)*100, 2)
+
+#x^2
+chisq.test(depart.sex.table, correct = F)
+#X-squared = 66.249, df = 17, p-value = 9.442e-08
+
+```
+>x^2 값은 66.2493, 유의확률은 17이므로 국가고시 유형별로 남녀의 합격수가 다를것이다는 연구가설을 채택한다.
+
+### gmodels패키지를 이용한 교차분석 
+```{r}
+library(gmodels)
+CrossTable(df$depart, df$sex, digits = 4, 
+           prop.c = T, prop.r = F, prop.t = F,
+           prop.chisq = F, chisq = T)
+```
+>x^2 값은 66.2493, 유의확률은 17이므로 국가고시 유형별로 남녀의 합격수가 다를것이다는 연구가설을 채택한다.
+
+
+### sjPlot패키지를 이용한 교차분석
+```{r}
+#install.packages("sjPlot")
+library(sjPlot)
+sjt.xtab(df$depart, df$sex, 
+         show.col.prc = T, 
+         show.exp = T, var.labels=c("분서", "성별"), 
+         value.labels = list(c("감사", "검찰", "공업", "관세", "교정", "기술직", "농업", "방송통신", "방재안전", "보호", "세무", "시설", "외무영사", "임업", "전산", "출입국관리", "통계", "행정"), c("남성", "여성")), encoding="EUC-KR")
+```
+
+>x^2값은 66.2493이고 유의확률은 p<.001로 가설을 기각하거나 채택할 수 있는 기준인 0.05보다 낮기 때문에, 국가고시 유형별로 남녀의 합격수가 다를것이다는 연구가설을 채택한다.
+
+### sjPlot패키지를 이용한 도표 출력
+```{r}
+set_theme(geom.label.size = 1.2, axis.textsize = 1.1,
+legend.pos="bottom")
+sjp.xtab(df$depart, df$sex, type="bar", y.offset = 0.01,
+         margin = "col", coord.flip = T, wrap.labels = 7,
+         geom.colors = "Set2", show.summary = T,
+         show.total = F, 
+         axis.titles = "부서별 성별에 따른 합격수", 
+         axis.labels = c("감사", "검찰", "공업", "관세", "교정", "기술직", "농업", "방송통신", "방재안전", "보호", "세무", "시설", "외무영사", "임업", "전산", "출입국관리", "통계", "행정"), 
+         legend.title = "성별", 
+         legend.labels = c("여성", "남성"))
+```
+
+### ggplot2
+```{r}
+library(ggplot2)
+df %>% 
+  ggplot(aes(depart, fill=sex)) +
+  geom_bar(position = "dodge") +
+  coord_flip() 
+
+```

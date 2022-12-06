@@ -1,0 +1,123 @@
+---
+title: "HW3_201821479_황혜린"
+author: "201821479_황혜린"
+date: "2019년 3월 26일"
+output: word_document
+---
+
+# Weekly assignment3   
+
+>남성, 여성 청소년 그룹 각각에 대해서 다음을 출력하는 코드를 작성하여 제출. 
+
+* 빈도표
+* 바차트
+* 파이차트
+* 기술통계량 
+
+***  
+
+
+## 빈도표 
+```{r}
+spssdata <- read.table("C:/Users/hyere/Desktop/Data_R/04-1 중2 패널 1차년도 데이터.csv", header=TRUE, sep=",")
+#install.packages("gmodels")
+library(gmodels)
+
+nrow(spssdata) #3449
+CrossTable(spssdata$sexw1, spssdata$q50w1)
+#NA값 없음 
+```
+
+
+## 데이터 전처리
+원본데이터를 그대로 사용해 시각화하는 과정에서 오류가 생겨 데이터 전처리를 하였습니다. 
+```{r}
+library(dplyr)
+
+all <- spssdata %>% select(sexw1, q50w1)
+names(all) <- c("sex", "life_satisfaction")
+#그러나 그대로 ggplot에 사용하는 경우 오류가 뜬다 
+
+
+#명목형 변수로 바꿔주어야한다 
+for (i in 1:2) {
+  all[,i] <- as.factor(all[,i])
+}
+
+str(all)
+```
+
+
+## 바차트 geom_bar
+```{r}
+library(ggplot2)
+all %>% 
+  group_by(sex) %>% 
+  ggplot(aes(life_satisfaction, fill = sex)) +
+  geom_bar(position = "dodge") #성별변수를 세로로 구분짓는다 
+
+```
+
+
+## mosaicplot
+```{r}
+mosaicplot( ~ life_satisfaction + sex,
+            data = all,
+            color=T)
+
+```
+
+
+```{r}
+library(RColorBrewer)
+library(gridExtra)
+
+boy <- all %>% filter(sex==1) %>%
+  ggplot(aes(life_satisfaction, fill = sex)) +
+  geom_bar() + scale_fill_brewer(type='seq', palette='Reds') + 
+  labs(title = "Boy")
+
+girl <- all %>% filter(sex==2) %>% 
+  ggplot(aes(life_satisfaction, fill = sex)) +
+  geom_bar() + scale_fill_brewer() +
+  labs(title = "Girl")
+
+
+grid.arrange(boy, girl, ncol=2)
+
+```
+   
+## 파이차트    
+```{r}
+grid.arrange( boy + coord_polar("y", start=0), 
+            girl + coord_polar("y", start=0), ncol=2 )  
+```
+
+```{r}
+boy_pie <- all %>% filter(sex==1) %>% 
+    ggplot(aes(sex, fill = life_satisfaction)) +
+    geom_bar() + coord_polar("y", start=0) + labs(title = "Boy")
+
+girl_pie <- all %>% filter(sex==2) %>% 
+  ggplot(aes(sex, fill = life_satisfaction)) +
+  geom_bar() + coord_polar("y", start=0) + labs(title = "Girl")
+
+grid.arrange(boy_pie, girl_pie, ncol=2)
+```
+
+## 기술통계량
+```{r}
+#install.packages("skimr")
+library(skimr)
+skim(all)
+
+#명목형 변수를 다시 정수로 바꿔 기술통계량 계산하기 
+all_integer <- all  
+for (i in 1:2) {
+  all_integer[,i] <- as.integer(all_integer[,i])
+}
+
+skim(all_integer)
+```
+
+
