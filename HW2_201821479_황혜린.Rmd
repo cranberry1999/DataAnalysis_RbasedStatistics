@@ -1,0 +1,152 @@
+---
+title: "HW2_201821479_황혜린"
+author: "201821479_황혜린"
+date: "2019년 3월 17일"
+output: word_document
+---
+
+#What is ggplot2 ? 
+
+***
+
+
+![](/Users/hyere/Desktop/rrr.png)
+
+>R에는 많은 패키지들이 있다. tidyr, dplyr, ggplot2등의 패키지는 위 표에서 알 수 있다시피 각 단계에서 R프로그래밍을 보다 효율적으로 사용할 수 있 도록 도와주고 있다.   
+>모두 유용한 패키지들이지만 그 중에서도 데이터 시각화에 사용하고 유용하여 널리 쓰이는 ggplot2패키지를 조사해보려 한다. 
+
+
+##목차 
+1. 기본적인 ggplot2사용법
+2. 다양한 그래프 그리기
+3. 그래프에 효과 추가하기   
+
+***
+
+
+
+##1. 기본적인 ggplot2사용법 
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+
+#mtcars로 기본적인 ggplot그래프 그려보기 
+
+standard <- ggplot(data=mtcars, aes(x=disp, y=mpg)) +
+  geom_point(aes(size=hp, color=wt))
+
+#ggplot(mtcars란 데이터를 활용하여, 미적요소(x=배기량, y=연비) + 산포도그래프(미적요소(마력을 기준으로 점 크기를 정하고, 무게를 통해 색깔을 정하라))
+
+standard
+```
+
+통계학적 결과 추가하기 
+```{r}
+standard + stat_smooth(color="black",fill="grey")
+
+#standard + loess추세선(색="검은색", 채우기="회색")
+```
+"배기량이 증가할수록 연비는 감소한다"   
+
+***
+
+##2. 다양한 그래프 그리기 
+
+R에 내장되어있는 economics 데이터 활용 
+```{r}
+head(economics)
+```
+
+날짜 별 실업자 나타내기 
+```{r}
+ggplot(data=economics, aes(x=date, y=unemploy)) +
+  geom_line()
+
+
+```
+
+막대그래프로 표현하기 
+```{r}
+ggplot(data=economics, aes(x=date, y=unemploy)) +
+  geom_bar(stat='identity') 
+  
+#geom_line() -> geom_bar()
+#막대그래프에 어떤 값을 표시할지 결정해야함 stat='identity'
+
+#geom_bar(stat='identity')
+
+```
+
+mtcars데이터로 막대그래프 다양하게 표현하기 
+```{r}
+mtcars$name <- rownames(mtcars)
+ggplot() + geom_bar(data=mtcars, aes(x=name, y=mpg), stat='identity')
+
+```
+
+y값이 점점 증가하는 형태의 그래프 
+```{r}
+ggplot(data=mtcars, aes(x=reorder(name, mtcars$mpg), y=mpg)) + geom_bar(stat='identity')
+
+```
+
+x값이 길때 해결방법1
+```{r}
+ggplot(data=mtcars, aes(x=reorder(name, -mtcars$mpg), y=mpg)) + geom_bar(stat='identity') + theme(axis.text.x = element_text(angle = 90))
+
+#theme함수 사용 
+```
+
+해결방법2
+```{r}
+ggplot(data=mtcars, aes(x=reorder(name, -mtcars$mpg), y=mpg)) + geom_bar(stat='identity') + coord_flip()
+
+#그래프 전체를 회전시키는 coord_flip()함수 사용 
+```
+
+***
+
+##3. 그래프에 효과 추가하기  
+
+그래프의 색, 굵기를 바꾸고 싶을 때
+```{r}
+ggplot(data=economics, aes(x=date, y=unemploy)) +
+  geom_line(color='#FFAA00', lwd=1)
+
+#geon_line(색="", 굵기="")
+```
+
+평균선 추가하기 
+```{r}
+graph <- ggplot(data=economics, aes(x=date, y=unemploy)) +
+  geom_line(color='#FFAA00', lwd=1)
+
+graph + geom_hline(yintercept=mean(economics$unemploy), linetype='dashed')
+
+#원래그래프 + 가로선(추가할y가로선=평균(실업자율이라는 열), 선타입("점선"))
+```
+
+
+
+
+그래프에 제목 달기 
+```{r}
+graph + labs(title = "날짜 별 실업자율")
+```
+
+
+값 강조하기 
+```{r}
+h <- ggplot(data=mtcars, aes(x=reorder(name, -mtcars$mpg), y=mpg)) + geom_bar(stat='identity') +
+  coord_flip()
+
+h + geom_bar(data=mtcars[mtcars$name=='Honda Civic', ], aes(x=name, y=mpg), fill='#5CBED2', stat='identity') + geom_text(aes(label=mpg), size=3, hjust=1.25, color='#FFFFFF')
+
+#geom_bar(data=강조할 데이터), 미적표현(x= , y= , fill="색깔", stat='identity') + geom_text(미적표현(mpg값을 가져다가), 글씨크기는3, 가로로1.25떨어진 지점에 위치, 글씨색깔=하얀색)
+```
+
+
+***
+출처   
+* 사진 https://blog.naver.com/gogsally/221342898527   
+* ggplot2 https://kuduz.tistory.com/1077
